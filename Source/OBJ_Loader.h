@@ -17,12 +17,9 @@
 // Math.h - STD math Library
 #include <math.h>
 
-// Print progress to console while loading (large models)
-#define OBJL_CONSOLE_OUTPUT
-
 // Namespace: OBJL
 //
-// Description: The namespace that holds eveyrthing that
+// Description: The namespace that holds everything that
 //	is needed and used for the OBJ Model Loader
 namespace objl
 {
@@ -66,7 +63,7 @@ namespace objl
 		// Float Multiplication Operator Overload
 		Vector2 operator*(const float& other) const
 		{
-			return Vector2(this->X *other, this->Y * other);
+			return Vector2(this->X * other, this->Y * other);
 		}
 
 		// Positional Variables
@@ -150,7 +147,7 @@ namespace objl
 	{
 		Material()
 		{
-			name;
+			name = "";
 			Ns = 0.0f;
 			Ni = 0.0f;
 			d = 0.0f;
@@ -222,7 +219,7 @@ namespace objl
 	namespace math
 	{
 		// Vector3 Cross Product
-		Vector3 CrossV3(const Vector3 a, const Vector3 b)
+		inline Vector3 CrossV3(const Vector3 &a, const Vector3 &b)
 		{
 			return Vector3(a.Y * b.Z - a.Z * b.Y,
 				a.Z * b.X - a.X * b.Z,
@@ -230,27 +227,27 @@ namespace objl
 		}
 
 		// Vector3 Magnitude Calculation
-		float MagnitudeV3(const Vector3 in)
+        inline float MagnitudeV3(const Vector3 &in)
 		{
 			return (sqrtf(powf(in.X, 2) + powf(in.Y, 2) + powf(in.Z, 2)));
 		}
 
 		// Vector3 DotProduct
-		float DotV3(const Vector3 a, const Vector3 b)
+        inline float DotV3(const Vector3 &a, const Vector3 &b)
 		{
 			return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
 		}
 
 		// Angle between 2 Vector3 Objects
-		float AngleBetweenV3(const Vector3 a, const Vector3 b)
+        inline float AngleBetweenV3(const Vector3 &a, const Vector3 &b)
 		{
 			float angle = DotV3(a, b);
 			angle /= (MagnitudeV3(a) * MagnitudeV3(b));
-			return angle = acosf(angle);
+			return acosf(angle);
 		}
 
 		// Projection Calculation of a onto b
-		Vector3 ProjV3(const Vector3 a, const Vector3 b)
+        inline Vector3 ProjV3(const Vector3 &a, const Vector3 &b)
 		{
 			Vector3 bn = b / MagnitudeV3(b);
 			return bn * DotV3(a, bn);
@@ -264,13 +261,13 @@ namespace objl
 	namespace algorithm
 	{
 		// Vector3 Multiplication Opertor Overload
-		Vector3 operator*(const float& left, const Vector3& right)
+        inline Vector3 operator*(const float& left, const Vector3& right)
 		{
 			return Vector3(right.X * left, right.Y * left, right.Z * left);
 		}
 
 		// A test to see if P1 is on the same side as P2 of a line segment ab
-		bool SameSide(Vector3 p1, Vector3 p2, Vector3 a, Vector3 b)
+        inline bool SameSide(Vector3 p1, Vector3 p2, Vector3 a, Vector3 b)
 		{
 			Vector3 cp1 = math::CrossV3(b - a, p1 - a);
 			Vector3 cp2 = math::CrossV3(b - a, p2 - a);
@@ -281,8 +278,8 @@ namespace objl
 				return false;
 		}
 
-		// Generate a cross produect normal for a triangle
-		Vector3 GenTriNormal(Vector3 t1, Vector3 t2, Vector3 t3)
+		// Generate a cross product normal for a triangle
+        inline Vector3 GenTriNormal(Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			Vector3 u = t2 - t1;
 			Vector3 v = t3 - t1;
@@ -293,7 +290,7 @@ namespace objl
 		}
 
 		// Check to see if a Vector3 Point is within a 3 Vector3 Triangle
-		bool inTriangle(Vector3 point, Vector3 tri1, Vector3 tri2, Vector3 tri3)
+        inline bool inTriangle(Vector3 point, Vector3 tri1, Vector3 tri2, Vector3 tri3)
 		{
 			// Test to see if it is within an infinite prism that the triangle outlines.
 			bool within_tri_prisim = SameSide(point, tri1, tri2, tri3) && SameSide(point, tri2, tri1, tri3)
@@ -303,7 +300,7 @@ namespace objl
 			if (!within_tri_prisim)
 				return false;
 
-			// Calulate Triangle's Normal
+			// Calculate Triangle's Normal
 			Vector3 n = GenTriNormal(tri1, tri2, tri3);
 
 			// Project the point onto this normal
@@ -320,7 +317,7 @@ namespace objl
 		// Split a String into a string array at a given token
 		inline void split(const std::string &in,
 			std::vector<std::string> &out,
-			std::string token)
+			const std::string &token)
 		{
 			out.clear();
 
@@ -428,7 +425,7 @@ namespace objl
 		//
 		// If the file is unable to be found
 		// or unable to be loaded return false
-		bool LoadFile(std::string Path)
+		bool LoadFile(const std::string &Path)
 		{
 			// If the file is not an .obj file return false
 			if (Path.substr(Path.size() - 4, 4) != ".obj")
@@ -590,7 +587,7 @@ namespace objl
 
 					std::vector<unsigned int> iIndices;
 
-					VertexTriangluation(iIndices, vVerts);
+					VertexTriangulation(iIndices, vVerts);
 
 					// Add Indices
 					for (int i = 0; i < int(iIndices.size()); i++)
@@ -649,7 +646,7 @@ namespace objl
 
 					if (temp.size() != 1)
 					{
-						for (int i = 0; i < temp.size() - 1; i++)
+						for (unsigned int i = 0; i < temp.size() - 1; i++)
 						{
 							pathtomat += temp[i] + "/";
 						}
@@ -686,13 +683,13 @@ namespace objl
 			file.close();
 
 			// Set Materials for each Mesh
-			for (int i = 0; i < MeshMatNames.size(); i++)
+			for (unsigned int i = 0; i < MeshMatNames.size(); i++)
 			{
 				std::string matname = MeshMatNames[i];
 
 				// Find corresponding material name in loaded materials
 				// when found copy material variables into mesh material
-				for (int j = 0; j < LoadedMaterials.size(); j++)
+				for (unsigned int j = 0; j < LoadedMaterials.size(); j++)
 				{
 					if (LoadedMaterials[j].name == matname)
 					{
@@ -740,7 +737,7 @@ namespace objl
 			for (int i = 0; i < int(sface.size()); i++)
 			{
 				// See What type the vertex is.
-				int vtype;
+				int vtype = 0;
 
 				algorithm::split(sface[i], svert, "/");
 
@@ -817,7 +814,7 @@ namespace objl
 			}
 
 			// take care of missing normals
-			// these may not be truly acurate but it is the 
+			// these may not be truly accurate, but it is the
 			// best they get for not compiling a mesh with normals	
 			if (noNormal)
 			{
@@ -835,7 +832,7 @@ namespace objl
 
 		// Triangulate a list of vertices into a face by printing
 		//	inducies corresponding with triangles within it
-		void VertexTriangluation(std::vector<unsigned int>& oIndices,
+		void VertexTriangulation(std::vector<unsigned int>& oIndices,
 			const std::vector<Vertex>& iVerts)
 		{
 			// If there are 2 or less verts,
@@ -878,7 +875,7 @@ namespace objl
 
 					// pNext = the next vertex in the list
 					Vertex pNext;
-					if (i == tVerts.size() - 1)
+					if (i == static_cast<int>(tVerts.size() - 1))
 					{
 						pNext = tVerts[0];
 					}
@@ -1003,7 +1000,7 @@ namespace objl
 		}
 
 		// Load Materials from .mtl file
-		bool LoadMaterials(std::string path)
+		bool LoadMaterials(const std::string &path)
 		{
 			// If the file is not a material file return false
 			if (path.substr(path.size() - 4, path.size()) != ".mtl")
